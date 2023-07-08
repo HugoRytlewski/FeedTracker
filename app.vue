@@ -142,7 +142,7 @@ window.scrollTo({
 </script>
 
 <template>
-    <Wait v-if="waitLoadRss"/>
+    <Wait class="hidden md:grid		"  v-if="waitLoadRss"/>
     <Navbar/>
   <div class="p-10 mt-24 lg:p-28 lg:mt-16">
     <div class="grid lg:grid-cols-2 gap-16 ">
