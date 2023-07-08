@@ -1,51 +1,34 @@
 <script setup lang="ts">
-
-
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import Navbar from '/components/Layouts/NavBar.vue';
 import Footer from '/components/Layouts/Footer.vue';
+import Wait from '/components/Layouts/Wait.vue';
+
 import cheerio from 'cheerio';
-
 import { useWindowScroll } from "@vueuse/core";
-const { y } = useWindowScroll();
 
 
+const apiUrl = 'http://127.0.0.1:8000/api/fluxrsses?page=1';
+const entetes = { 'Accept': 'application/ld+json' };
 const articles = ref([]);
 const limiteArticles = ref(10);
+const { y } = useWindowScroll();
+let waitLoadRss = ref(true)
 
 //Pour eviter d'utiliser un serveur back(php) j'ai pas les sous (reconstitution API)
-let tableau = [
-  {
-    "id": 1,
-    "url": "https://www.clubic.com/feed/news.rss\n"
-  },
-  {
-    "id": 2,
-    "url": "https://www.tomsguide.fr/feed/\n",
-  },
-  {
 
-    "id": 3,
-    "url": "https://www.zdnet.fr/feeds/rss/actualites/\n",
- 
-  },
-  {
-
-    "id": 4,
-    "url": "https://www.01net.com/actualites/feed/\n",
-  },
-  {
-    "id": 5,
-    "url": "https://www.journaldunet.com/rss/",
-  }
-];
 
 onMounted(async () => {
   try {
 
+    //du a mon api (plateform api je recupere les flux rss de la base de donné) sous la forme d'un tableau
+    const reponse = await axios.get(apiUrl, { entetes });
+    const donnees = reponse.data;
+    const fluxRssList = donnees['hydra:member'];
+    ///////////////////////////////////////////////////////////////////////////
 
-    await FeedArticles(tableau);
+    await FeedArticles(fluxRssList);
     
   } catch (erreur) {
     console.error('Une erreur s\'est produite (API) :', erreur);
@@ -131,6 +114,7 @@ async function setRssFeed(dataFeed:any, limit:boolean) {
     articles.value.push(article);
     articles.value.sort(sortChrono);
   }
+  waitLoadRss.value = false;
 }
 
 async function isImageValid(url) {
@@ -158,15 +142,13 @@ window.scrollTo({
 </script>
 
 <template>
-  <Navbar/>
+    <Wait v-if="waitLoadRss"/>
+    <Navbar/>
   <div class="p-10 mt-24 lg:p-28 lg:mt-16">
     <div class="grid lg:grid-cols-2 gap-16 ">
       <div v-for="(article , index) in articles.slice(0, limiteArticles)" :key="index" class="flex h-full items-center justify-center flex-col gap-6 rounded-xl bg-neutral-800 hover:-translate-y-1 hover:scale-105  duration-200 p-6  border-neutral-800 shadow-md ">
-        <img
-      v-if="article.img"
-      :src="article.img"
-      class="pixelated-image hidden w-11/12 max-h-72 rounded-lg object-cover md:block lazyload"
-    >        <img v-else src="~/assets/img/ee.png" class="hidden w-11/12 max-h-72 rounded-lg object-cover md:block">
+        <img  v-if="article.img" :src="article.img" class="pixelated-image  w-11/12 max-h-72 rounded-lg object-cover  lazyload">
+        <img v-else src="~/assets/img/ee.png" class=" w-11/12 max-h-72 rounded-lg object-cover ">
         <div class="flex flex-col justify-between w-full	 gap-y-4">
           <div class="space-y-4">
             <div class="flex justify-center">
@@ -201,6 +183,7 @@ window.scrollTo({
     </button>
   </Transition>
   <Footer/>
+  
 </template>
 
 <style>
