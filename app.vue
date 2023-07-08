@@ -1,15 +1,18 @@
 <script setup lang="ts">
+
+
 import axios from 'axios';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import Navbar from '/components/Layouts/NavBar.vue';
 import Footer from '/components/Layouts/Footer.vue';
 import cheerio from 'cheerio';
+
 import { useWindowScroll } from "@vueuse/core";
+const { y } = useWindowScroll();
 
 
 const articles = ref([]);
 const limiteArticles = ref(10);
-const { y } = useWindowScroll();
 
 //Pour eviter d'utiliser un serveur back(php) j'ai pas les sous (reconstitution API)
 let tableau = [
