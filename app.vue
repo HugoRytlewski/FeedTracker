@@ -14,7 +14,7 @@ const entetes = { 'Accept': 'application/ld+json' };
 const articles = ref([]);
 const limiteArticles = ref(10);
 const { y } = useWindowScroll();
-let waitLoadRss = ref(true)
+const waitLoadRss = ref(true)
 
 //Pour eviter d'utiliser un serveur back(php) j'ai pas les sous (reconstitution API)
 
